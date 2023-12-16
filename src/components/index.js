@@ -3,6 +3,7 @@ import Editor from './Editor'
 import Footy from './Footy'
 import Home from './Home'
 import LinkPage from './LinkPage'
+import Login from './Login'
 import Lounge from './Lounge'
 import Main from './Main'
 import Missing from './Missing'
@@ -13,4 +14,4 @@ import Register from './Register'
 import RequireAuth from './RequireAuth'
 import Unauthorized from './Unauthorized'
 
-export { Admin, Editor, Footy, Home, LinkPage, Lounge, Main, Missing, Navbar, Register, Nest, NestTwo, RequireAuth, Unauthorized }
+export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, NestTwo, RequireAuth, Unauthorized }

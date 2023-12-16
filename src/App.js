@@ -1,5 +1,5 @@
 import { RouterProvider, Outlet, createBrowserRouter } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Lounge, Main, Missing, Navbar, Nest, NestTwo, Register,  Unauthorized } from './components/index'
+import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Nest, NestTwo, Register, RequireAuth,  Unauthorized } from './components/index'
 import './App.css';
 
 const ROLES = {
@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Main />,
+        element: <Home />,
       },
       {
         path: ":nest",
@@ -31,8 +31,28 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: "lounge",
-        element: <Lounge />,
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
+        element: <Register />,
+      },
+      {
+        path: "linkpage",
+        element: <LinkPage />,
+      },
+      {
+        path: "unauthorized",
+        element: <Unauthorized />,
+      },
+      {
+        path: "*",
+        element: <Missing />,
+      },
+      {
+        path: "req",
+        element: <RequireAuth />,
       },
     ]
   }
