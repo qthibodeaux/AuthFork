@@ -1,4 +1,4 @@
-import { RouterProvider, Outlet, createBrowserRouter } from 'react-router-dom'
+import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
 import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Nest, NestTwo, Register, RequireAuth,  Unauthorized } from './components/index'
 import './App.css';
 
@@ -8,58 +8,41 @@ const ROLES = {
   'Admin': 5150
 }
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      {
-        path: "",
-        element: <Home />,
-      },
-      {
-        path: ":nest",
-        children: [
-          {
-            path: "",
-            element: <Nest />,  
-          },
-          {
-          path: ":nestTwo",
-          element: <NestTwo />,  
-          }
-        ]
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <Register />,
-      },
-      {
-        path: "linkpage",
-        element: <LinkPage />,
-      },
-      {
-        path: "unauthorized",
-        element: <Unauthorized />,
-      },
-      {
-        path: "*",
-        element: <Missing />,
-      },
-      {
-        path: "req",
-        element: <RequireAuth />,
-      },
-    ]
-  }
-])
+const routing = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Layout />}>
+      {/*  Public Routes */}
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
+      <Route path="linkpage" element={<LinkPage />} />
+      <Route path="unauthorized" element={<Unauthorized />} />
+
+      {/*  Protected Routes */}
+      <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.Editor]} />}>
+          <Route path="editor" element={<Editor />} />
+        </Route>
+
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+          <Route path="admin" element={<Admin />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
+          <Route path="lounge" element={<Lounge />} />
+        </Route>
+
+      {/*  Catch All */}
+      <Route path="*" element={<Missing />}/>
+    </Route>
+  )
+)
 
 function App() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={routing}/>
 }
 
 export default App;
