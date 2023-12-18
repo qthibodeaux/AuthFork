@@ -1,6 +1,5 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Nest, NestTwo, Register, RequireAuth,  Unauthorized } from './components/index'
-import './App.css';
+import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, NestTwo, Register, RequireAuth,  Unauthorized } from './components/index'
 
 const ROLES = {
   'User': 2001,
@@ -17,8 +16,10 @@ const routing = createBrowserRouter(
       <Route path="linkpage" element={<LinkPage />} />
       <Route path="unauthorized" element={<Unauthorized />} />
 
+      <Route path="/:nest" element={<Nest />} />
+
       {/*  Protected Routes */}
-      <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
+        <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
           <Route path="/" element={<Home />} />
         </Route>
 
@@ -49,10 +50,10 @@ export default App;
 
 function Layout () {
   return (
-    <div>
+    <main className="App">
       <Navbar/>
       <Outlet />
       <Footy />
-    </div>
+    </main>
   )
 }

@@ -1,8 +1,19 @@
-import React from 'react'
+import { Link } from 'react-router-dom'
 
 function Admin() {
   return (
-    <div>Admin</div>
+    <section>
+      <h1>Admin Page</h1>
+      <br />
+      <p>
+        <div>
+          Todo: Users Page
+        </div>
+        <div>
+          <Link to="/">Home</Link>
+        </div>
+      </p>
+    </section>
   )
 }
 
