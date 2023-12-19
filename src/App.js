@@ -50,9 +50,11 @@ export default App;
 
 function Layout () {
   return (
-    <main className="App">
-      <Navbar/>
-      <Outlet />
+    <main>
+      <Navbar />
+      <div className="App">
+        <Outlet />
+      </div>
       <Footy />
     </main>
   )
