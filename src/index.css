@@ -127,3 +127,13 @@ li {
   height: 3rem;
   backdrop-filter: blur(15px);
 }
+
+.NavBar {
+  padding: .5rem 10rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.AuthFork {
+  padding: 1rem;
+}
