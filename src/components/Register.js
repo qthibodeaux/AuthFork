@@ -26,7 +26,14 @@ function Register () {
         <Auth 
           supabaseClient={supabaseClient}
           appearance={{ 
-            theme: ThemeSupa
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  inputBackground: 'white',
+                }
+              }
+            }
           }}
           view={authMode}
         />
@@ -34,5 +41,16 @@ function Register () {
     </section>
   )
 }
+
+/*
+{
+            style: {
+              button: { background: 'white', color: 'black', padding: '.5rem', borderRadius: '.5rem' },
+              anchor: { color: 'white' },
+              input: { padding: '.5rem', borderRadius: '.5rem' },
+              message: { color: 'red' }
+            }
+          }
+*/
 
 export default Register
