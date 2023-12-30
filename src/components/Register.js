@@ -27,13 +27,6 @@ function Register () {
           supabaseClient={supabaseClient}
           appearance={{ 
             theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  inputBackground: 'white',
-                }
-              }
-            }
           }}
           view={authMode}
         />
