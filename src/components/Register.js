@@ -26,7 +26,13 @@ function Register () {
         <Auth 
           supabaseClient={supabaseClient}
           appearance={{ 
-            theme: ThemeSupa,
+            style: {
+              button: { background: 'white', color: 'black', padding: '.25rem', borderRadius: '.5rem', fontSize: '22px', fontFamily: 'Nunito, sans-serif' },
+              anchor: { color: 'white' },
+              input: { padding: '.5rem', borderRadius: '.5rem' },
+              message: { color: 'red' },
+              label: { color: 'black', marginTop: '1rem', fontSize: '22px' }
+            }
           }}
           view={authMode}
         />
@@ -35,15 +41,5 @@ function Register () {
   )
 }
 
-/*
-{
-            style: {
-              button: { background: 'white', color: 'black', padding: '.5rem', borderRadius: '.5rem' },
-              anchor: { color: 'white' },
-              input: { padding: '.5rem', borderRadius: '.5rem' },
-              message: { color: 'red' }
-            }
-          }
-*/
 
 export default Register

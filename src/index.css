@@ -50,12 +50,14 @@ a, a:visited {
 
 input[type="text"],
 input[type="password"],
+input[type="email"],
 button,
 textarea {
 font-family: 'Nunito', sans-serif;
 font-size: 22px;
 padding: 0.25rem;
 border-radius: 0.5rem;
+background-color: white;
 }
 
 label,
@@ -136,21 +138,4 @@ li {
 
 .AuthFork {
   padding: 1rem;
-}
-
-.my-label {
-  color: white;
-}
-
-.authButton {
-  background-color: white;
-  border-radius: none;
-  width: 100%;
-  gap: 1rem;
-}
-
-.authContainer {
-  border: 1px solid black;
-  display: flex;
-  flex-direction: column;
 }
