@@ -10,8 +10,9 @@ import Missing from './Missing'
 import Navbar from './NavBar'
 import Nest from './Nest'
 import NestTwo from './NestTwo'
+import Profile from './Profile'
 import Register from './Register'
 import RequireAuth from './RequireAuth'
 import Unauthorized from './Unauthorized'
 
-export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, NestTwo, RequireAuth, Unauthorized }
+export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, NestTwo, Profile, RequireAuth, Unauthorized }

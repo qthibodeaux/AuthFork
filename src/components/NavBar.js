@@ -20,12 +20,7 @@ function RegisterButton () {
 }
 
 function LogoutButton () {
-  let navigate = useNavigate()
-  const { logout } = useAuth()
-  const handleLogout = () => {
-      navigate('/login')
-      logout()
-  }
+  const handleLogout = () => supabaseClient.auth.signOut()
 
   return (
       <button type='button' className='btn ' id="navbutton" onClick={handleLogout}><span className='nav-dev'>log</span>out</button>
@@ -41,8 +36,8 @@ function NavBar() {
     <div className='NavBar'>
       <h4>NavBar</h4>
       {sess 
-        ? <RegisterButton />
-        : <LogoutButton />
+        ? <LogoutButton />
+        : <RegisterButton /> 
       }
     </div>
   )

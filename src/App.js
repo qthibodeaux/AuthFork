@@ -1,5 +1,6 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, NestTwo, Register, RequireAuth,  Unauthorized } from './components/index'
+import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, NestTwo, Profile, Register, RequireAuth,  Unauthorized } from './components/index'
+import { AuthProvider } from './useAuth'
 
 const ROLES = {
   'User': 2001,
@@ -36,6 +37,10 @@ const routing = createBrowserRouter(
           <Route path="lounge" element={<Lounge />} />
         </Route>
 
+        <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
+          <Route path="profile" element={<Profile />} />
+        </Route>
+
       {/*  Catch All */}
       <Route path="*" element={<Missing />}/>
     </Route>
@@ -51,11 +56,13 @@ export default App;
 function Layout () {
   return (
     <main>
-      <Navbar />
-      <div className="App">
-        <Outlet />
-      </div>
-      <Footy />
+      <AuthProvider>
+        <Navbar />
+        <div className="App">
+          <Outlet />
+        </div>
+        <Footy />
+      </AuthProvider>
     </main>
   )
 }
