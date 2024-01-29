@@ -1,5 +1,5 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, NestTwo, Profile, Register, RequireAuth,  Unauthorized } from './components/index'
+import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized } from './components/index'
 import { AuthProvider } from './useAuth'
 
 const ROLES = {
@@ -66,3 +66,5 @@ function Layout () {
     </main>
   )
 }
+
+//npx supabase db reset
