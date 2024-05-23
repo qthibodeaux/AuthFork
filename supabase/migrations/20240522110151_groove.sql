@@ -1,4 +1,4 @@
-create table user_profiles (
+create table love (
   user_id uuid primary key references auth.users (id) not null,
   username text unique not null
   CONSTRAINT proper_username CHECK (username ~* '^[a-zA-Z0-9_]+$')
