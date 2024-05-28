@@ -34,6 +34,7 @@ function Register () {
               label: { color: 'black', marginTop: '1rem', fontSize: '22px' }
             }
           }}
+          providers={['google']}
           view={authMode}
         />
       </div>

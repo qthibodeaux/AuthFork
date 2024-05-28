@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState  } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import supabaseClient from '../supabaseClient'
 
 function Login() {
   const navigate = useNavigate()
@@ -16,6 +17,18 @@ function Login() {
   useEffect(() => {
     setErrMessage('')
   }, [username, password])
+
+  const [sess, setSess] = useState(null)
+
+  const getSession = async () => {
+    const {data, error} = await supabaseClient.auth.getSession()
+    if (error) {
+      console.error("error retrieving session", error)
+    } else {
+      setSess(data.session)
+      console.log("Session: ", data.session)
+    }
+  }
 
   return (
     <section>
@@ -49,6 +62,15 @@ function Login() {
           <Link to="/register">Sign Up</Link>
         </span>
       </p>
+
+      <div>
+        hello
+        <button onClick={getSession}>Get Session</button>
+        {sess 
+          ? "true"
+          : "false"
+        }
+      </div>
     </section>
   )
 }

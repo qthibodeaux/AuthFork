@@ -7,7 +7,7 @@ function RequireAuth ({ allowedRoles }) {
 
     const auth = 
     { 
-        roles: [1984, 5150, 2001], 
+        roles: [1984, 5150], 
     }
 
     const { sess } = useAuth()
@@ -15,10 +15,14 @@ function RequireAuth ({ allowedRoles }) {
   return (
     <div>
       req
-      {allowedRoles}
-      {auth.roles}
-      {auth.user}
-      {sess + " sess "}
+      {"allowed roles: " + allowedRoles}
+      {"auth role: " + auth.roles}
+      {"auth user:" + auth.user}
+      {
+        auth?.roles?.find(role => allowedRoles?.includes(role)) 
+        ? "true"
+        : "false"
+      }
       {
         auth?.roles?.find(role => allowedRoles?.includes(role)) 
           ? <Outlet />

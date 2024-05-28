@@ -8,6 +8,15 @@ const ROLES = {
   'Admin': 5150
 }
 
+/***
+ * Current Blockers
+ * talking to supabase
+ * supabase not initialized | initial routing thruu RequireAuth goes to home page |
+ * query not talking to database
+ * 
+ * default 
+ */
+
 const routing = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
