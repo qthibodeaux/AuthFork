@@ -1,33 +1,25 @@
 import { useParams } from "react-router-dom"
 import { useState } from "react"
 import supabaseClient from '../supabaseClient'
+import { useAuth } from "../useAuth"
 
 function Nest() {
   const { nest } = useParams()
 
-  const [sess, setSess] = useState(null)
   const [data, setData] = useState(null)
 
-  const getSession = async () => {
-    const {data, error} = await supabaseClient.auth.getSession()
-    if (error) {
-      console.error("error retrieving session", error)
-    } else {
-      setSess(data.session)
-      console.log("Session: ", data.session)
-    }
-  }
+  const { sess, profile } = useAuth()
 
   const getData = async () => {
     const {data, error} = await supabaseClient
-      .from('user_profiles')
+      .from('countries')
       .select()
 
       if (error) {
         console.error("error retrieving session", error)
       } else {
-        setData(data.session)
-        console.log("Session: ", data.session)
+        setData(data)
+        console.log("Data: ", data)
       }
   }
 
@@ -43,8 +35,12 @@ function Nest() {
       </div>
       <div>
         hello
-        <button onClick={getSession}>Get Session</button>
+        
         {sess 
+          ? <div>"true" {sess?.user.id} </div>
+          : "false"
+        }
+        {profile
           ? "true"
           : "false"
         }
