@@ -6,21 +6,23 @@ import { useAuth } from "../useAuth"
 function Nest() {
   const { nest } = useParams()
 
-  const [data, setData] = useState(null)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const { sess, profile } = useAuth()
+  const handleButtonClick = async () => {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession()
+      console.log(session)
+    }
+    catch (error) {
+      console.error('Error fetching object:', error);
+    }
+  };
 
-  const getData = async () => {
-    const {data, error} = await supabaseClient
-      .from('countries')
-      .select()
-
-      if (error) {
-        console.error("error retrieving session", error)
-      } else {
-        setData(data)
-        console.log("Data: ", data)
-      }
+  const sessionFunction = async () => {
+    const response = await supabaseClient.auth.getSession()
+    const data = await response.json()
+    return data
   }
 
   return (
@@ -28,31 +30,10 @@ function Nest() {
       Nest
       {nest}
       <div>
-        <div>
-          
-        </div>
-        <div>2</div>
-      </div>
-      <div>
-        hello
-        
-        {sess 
-          ? <div>"true" {sess?.user.id} </div>
-          : "false"
-        }
-        {profile
-          ? "true"
-          : "false"
-        }
-      </div>
-      <div>
-        data
-        <button onClick={getData}>Get Data</button>
-        {data 
-          ? "true"
-          : "false"
-        }
-      </div>
+      <h1>Fetch Data on Button Click</h1>
+      <button onClick={handleButtonClick}>Fetch Data</button>
+      
+    </div>
     </div>
   )
 }

@@ -18,16 +18,31 @@ function Login() {
     setErrMessage('')
   }, [username, password])
 
-  const [sess, setSess] = useState(null)
+  const [userInfo, setUserInfo] = useState({
+    profile: null,
+    session: null
+  })
+  const [data, setData] = useState(null)
 
-  const getSession = async () => {
-    const {data, error} = await supabaseClient.auth.getSession()
-    if (error) {
-      console.error("error retrieving session", error)
-    } else {
-      setSess(data.session)
-      console.log("Session: ", data.session)
-    }
+  const sessionFunction = async () => {
+    await supabaseClient.auth.getSession()
+      .then(({ data: { session } }) => {
+          setUserInfo({ ...userInfo, session })
+          console.log("Session data"+userInfo)
+      })
+  }
+
+  const getData = async () => {
+    const {data, error} = await supabaseClient
+      .from('countries')
+      .select()
+
+      if (error) {
+        console.error("error retrieving session", error)
+      } else {
+        setData(data)
+        console.log("Data: ", data)
+      }
   }
 
   return (
@@ -65,8 +80,16 @@ function Login() {
 
       <div>
         hello
-        <button onClick={getSession}>Get Session</button>
-        {sess 
+        <button onClick={sessionFunction}>Get Session</button>
+        {userInfo 
+          ? "true"
+          : "false"
+        }
+      </div>
+      <div>
+        data
+        <button onClick={getData}>Get Session</button>
+        {data 
           ? "true"
           : "false"
         }
