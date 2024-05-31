@@ -1,4 +1,4 @@
-/*create table user_profiles (
+create table user_profiles (
   user_id uuid primary key references auth.users (id) not null,
   username text unique not null
 );
@@ -19,10 +19,4 @@ CREATE POLICY "owners can update" ON "public"."user_profiles"
 AS PERMISSIVE FOR UPDATE
 TO public
 USING (auth.uid()=user_id)
-WITH CHECK (auth.uid()=user_id);*/
-
- -- Create the table
- CREATE TABLE countries (
-   id SERIAL PRIMARY KEY,
-   name VARCHAR(255) NOT NULL
- );
+WITH CHECK (auth.uid()=user_id);

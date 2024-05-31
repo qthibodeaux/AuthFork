@@ -1,10 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../useAuth'
+import { useSession } from '../useSession'
 import supabaseClient from '../supabaseClient'
 
 function RegisterButton () {
   let navigate = useNavigate()
-  
+    
   return (
       <button 
           type="button" 
@@ -28,14 +28,13 @@ function LogoutButton () {
 }
 
 function NavBar() {
-  const { sess } = useAuth()
   let navigate = useNavigate()
-
+  const { session } = useSession()
 
   return (
     <div className='NavBar'>
       <h4>NavBar</h4>
-      {sess 
+      {session 
         ? <LogoutButton />
         : <RegisterButton /> 
       }

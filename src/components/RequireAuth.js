@@ -1,16 +1,17 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom"
 import supabaseClient from '../supabaseClient'
 import { useAuth } from "../useAuth"
+import { profile, session } from '../useSession'
 
 function RequireAuth ({ allowedRoles }) {
     const location = useLocation()
 
     const auth = 
     { 
-        roles: [1984, 5150], 
+        roles: [1984, 2021, 5150], 
     }
 
-    const { sess } = useAuth()
+    
 
   return (
     <div>

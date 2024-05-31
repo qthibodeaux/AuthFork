@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabaseClient from "./supabaseClient"
-
+/*
 const AuthContext = createContext()
 
 export function useAuth () {
@@ -87,4 +87,4 @@ export function AuthProvider ({ children }) {
 
 export default function AuthConsumer () {
     return useContext(AuthContext)
-}
+}*/

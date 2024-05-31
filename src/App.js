@@ -1,6 +1,6 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
 import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized } from './components/index'
-import { AuthProvider } from './useAuth'
+import { AuthProvider } from './useSession'
 
 const ROLES = {
   'User': 2001,
@@ -11,10 +11,8 @@ const ROLES = {
 /***
  * Current Blockers
  * talking to supabase
- * supabase not initialized | initial routing thruu RequireAuth goes to home page |
- * query not talking to database
- * 
- * default 
+ * login and register navigation
+ * registration not recognizing and routing after successful creation
  */
 
 const routing = createBrowserRouter(
@@ -28,7 +26,10 @@ const routing = createBrowserRouter(
 
       <Route path="/:nest" element={<Nest />} />
 
-      {/*  Protected Routes */}
+      <Route path="/" element={<Home />} />
+      <Route path="profile" element={<Profile />} />
+
+      {/*  Protected Routes 
         <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
           <Route path="/" element={<Home />} />
         </Route>
@@ -49,6 +50,8 @@ const routing = createBrowserRouter(
         <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
           <Route path="profile" element={<Profile />} />
         </Route>
+
+        */}
 
       {/*  Catch All */}
       <Route path="*" element={<Missing />}/>

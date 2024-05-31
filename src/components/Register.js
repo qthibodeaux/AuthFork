@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Auth } from '@supabase/auth-ui-react'
 import supabaseClient from '../supabaseClient'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../useAuth'
+import { useSession } from '../useSession'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 
 export const setReturnPath = () => {
@@ -10,15 +10,16 @@ export const setReturnPath = () => {
 }
 
 function Register () {
+  const { profile } = useSession()
   const [authMode, setAuthMode] = useState("sign_in")
-  const { sess } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (sess?.user) {
+    console.log(profile)
+    if (profile) {
       navigate("../")
     }
-  }, [sess])
+  }, [profile])
 
   return (
     <section>
