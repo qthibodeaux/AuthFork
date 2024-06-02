@@ -18,6 +18,8 @@ export function useSession () {
                 supabaseClient.auth.onAuthStateChange( (_event, session) => {
                     setUserInfo( {session, profile: null})
                 })
+                console.log("userInfo")
+                console.log(userInfo)
             })
     }, [])
 
@@ -32,13 +34,17 @@ export function useSession () {
                         setChannel(newChannel)
                     }
                 )
+                console.log("listened to userprofilechanges")
+                console.log(userInfo.session)
         } else if (!userInfo.session?.user) {
             channel?.unsubscribe()
             setChannel(null)
+            console.log("no userinfo session user")
         }
     },[userInfo.session])
 
     async function listenToUserProfileChanges (userId) {
+        console.log('User ID called '+ userId)
         const { data } = await supabaseClient
             .from("user_profiles")
             .select("*")
@@ -46,6 +52,8 @@ export function useSession () {
         if (data?.[0]) {
             setUserInfo({ ...userInfo, profile: data?.[0] })
         }
+        console.log("data retrieved")
+        console.log(data)
 
         return supabaseClient
             .channel(`public:user_profiles`)
@@ -59,6 +67,7 @@ export function useSession () {
                 },
                 (payload) => {
                     setUserInfo({ ...userInfo, profile: payload.new })
+                    console.log(payload.new)
                 }
             )
             .subscribe()

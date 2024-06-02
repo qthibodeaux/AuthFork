@@ -10,14 +10,15 @@ export const setReturnPath = () => {
 }
 
 function Register () {
-  const { profile } = useSession()
-  const [authMode, setAuthMode] = useState("sign_in")
+  const { profile, session } = useSession()
   const navigate = useNavigate()
 
   useEffect(() => {
     console.log(profile)
     if (profile) {
-      navigate("../")
+      navigate("../success")
+      console.log("profile: "+ profile)
+      console.log("session: " + session)
     }
   }, [profile])
 
@@ -36,7 +37,6 @@ function Register () {
             }
           }}
           providers={['google']}
-          view={authMode}
         />
       </div>
     </section>
