@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import supabaseClient from "./supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext()
 
@@ -10,6 +11,7 @@ export function useSession () {
     })
 
     const [channel, setChannel] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
         supabaseClient.auth.getSession()
@@ -18,8 +20,6 @@ export function useSession () {
                 supabaseClient.auth.onAuthStateChange( (_event, session) => {
                     setUserInfo( {session, profile: null})
                 })
-                console.log("userInfo")
-                console.log(userInfo)
             })
     }, [])
 
@@ -34,26 +34,21 @@ export function useSession () {
                         setChannel(newChannel)
                     }
                 )
-                console.log("listened to userprofilechanges")
-                console.log(userInfo.session)
         } else if (!userInfo.session?.user) {
             channel?.unsubscribe()
             setChannel(null)
-            console.log("no userinfo session user")
         }
     },[userInfo.session])
 
     async function listenToUserProfileChanges (userId) {
-        console.log('User ID called '+ userId)
         const { data } = await supabaseClient
             .from("user_profiles")
             .select("*")
             .filter("user_id", "eq", userId)
-        if (data?.[0]) {
-            setUserInfo({ ...userInfo, profile: data?.[0] })
+        if (!data?.length) {
+            navigate("/welcome")
         }
-        console.log("data retrieved")
-        console.log(data)
+        setUserInfo({ ...userInfo, profile: data?.[0] })
 
         return supabaseClient
             .channel(`public:user_profiles`)
@@ -67,7 +62,6 @@ export function useSession () {
                 },
                 (payload) => {
                     setUserInfo({ ...userInfo, profile: payload.new })
-                    console.log(payload.new)
                 }
             )
             .subscribe()

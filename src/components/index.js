@@ -13,5 +13,6 @@ import Profile from './Profile'
 import Register from './Register'
 import RequireAuth from './RequireAuth'
 import Unauthorized from './Unauthorized'
+import { Welcome, welcomeLoader } from './Welcome'
 
-export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, Profile, RequireAuth, Unauthorized }
+export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, Profile, RequireAuth, Unauthorized, Welcome, welcomeLoader }

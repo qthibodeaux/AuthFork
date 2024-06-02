@@ -13,14 +13,31 @@ function Register () {
   const { profile, session } = useSession()
   const navigate = useNavigate()
 
+  /*
   useEffect(() => {
-    console.log(profile)
+    console.log("session")
+    console.log(session)
     if (profile) {
       navigate("../success")
       console.log("profile: "+ profile)
       console.log("session: " + session)
     }
-  }, [profile])
+  }, [session])*/
+
+const getSession = async () => {
+  try {
+    const { data, error } = await supabaseClient.auth.getUser()
+    if (error) {
+      console.error(error)
+    } else {
+      console.log(data)
+    }
+
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 
   return (
     <section>
@@ -38,6 +55,10 @@ function Register () {
           }}
           providers={['google']}
         />
+      </div>
+      <div>
+        hmm
+          <button onClick={getSession}>Get Session</button>
       </div>
     </section>
   )
