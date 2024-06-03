@@ -37,7 +37,8 @@ export function Welcome () {
                     .insert([
                         {
                             user_id: session?.user.id,
-                            username: userName
+                            username: userName,
+                            role: 2001
                         }
                     ])
                     .then(({ error }) => {

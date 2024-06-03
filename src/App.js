@@ -1,5 +1,5 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized, Welcome, welcomeLoader } from './components/index'
+import { Admin, Editor, Footy, Home, LinkPage, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized, Welcome, welcomeLoader } from './components/index'
 import { AuthProvider } from './useSession'
 
 const ROLES = {
@@ -8,52 +8,43 @@ const ROLES = {
   'Admin': 5150
 }
 
-/***
- * Current Blockers
- * talking to supabase
- * login and register navigation
- * registration not recognizing and routing after successful creation
- */
-
 const routing = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       {/*  Public Routes */}
-      <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="linkpage" element={<LinkPage />} />
       <Route path="unauthorized" element={<Unauthorized />} />
 
       <Route path="/:nest" element={<Nest />} />
 
-      <Route path="/" element={<Home />} />
       <Route path="profile" element={<Profile />} />
 
       <Route path="welcome" element={<Welcome />} loader={welcomeLoader} />
 
-      {/*  Protected Routes 
-        <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
-          <Route path="/" element={<Home />} />
-        </Route>
+      {/*  Protected Routes */}
+      <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
+        <Route path="/" element={<Home />} />
+      </Route>
 
-        <Route element={<RequireAuth allowedRoles={[ROLES.Editor]} />}>
-          <Route path="editor" element={<Editor />} />
-        </Route>
+      <Route element={<RequireAuth allowedRoles={[ROLES.Editor]} />}>
+        <Route path="editor" element={<Editor />} />
+      </Route>
 
 
-        <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
-          <Route path="admin" element={<Admin />} />
-        </Route>
+      <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+        <Route path="admin" element={<Admin />} />
+      </Route>
 
-        <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
-          <Route path="lounge" element={<Lounge />} />
-        </Route>
+      <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
+        <Route path="lounge" element={<Lounge />} />
+      </Route>
 
-        <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
-          <Route path="profile" element={<Profile />} />
-        </Route>
+      <Route element={<RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />}>
+        <Route path="profile" element={<Profile />} />
+      </Route>
 
-        */}
+        
 
       {/*  Catch All */}
       <Route path="*" element={<Missing />}/>
