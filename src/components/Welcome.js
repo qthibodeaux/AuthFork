@@ -38,18 +38,14 @@ export function Welcome () {
                         {
                             user_id: session?.user.id,
                             username: userName,
-                            role: 2001
                         }
                     ])
                     .then(({ error }) => {
                         if (error) {
                             setServerError(`Username "${userName}" is already taken`)
-                        } else {
-                            const target =localStorage.getItem("returnPath") || "/"
-                            localStorage.removeItem("returnPath")
-                            navigate(target)
-                        }
+                        } 
                     })
+
             }}
         >
             <input
@@ -69,3 +65,9 @@ export function Welcome () {
     </section>
   )
 }
+
+/*
+
+
+
+*/

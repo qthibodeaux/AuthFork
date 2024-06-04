@@ -1,6 +1,6 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom"
 import supabaseClient from '../supabaseClient'
-import { useAuth } from "../useAuth"
+import { useSession } from "../useSession"
 import { profile, session } from '../useSession'
 
 function RequireAuth ({ allowedRoles }) {
@@ -11,23 +11,23 @@ function RequireAuth ({ allowedRoles }) {
         roles: [1984, 2021, 5150], 
     }
 
-    
+    const { profile } = useSession()
 
   return (
     <div>
       req
       {"allowed roles: " + allowedRoles}
-      {"auth role: " + auth.roles}
-      {"auth user:" + auth.user}
+      {"auth role: " + profile?.roles}
+      {"auth user:" + profile?.user}
       {
-        auth?.roles?.find(role => allowedRoles?.includes(role)) 
+        profile?.roles?.find(role => allowedRoles?.includes(role)) 
         ? "true"
         : "false"
       }
       {
-        auth?.roles?.find(role => allowedRoles?.includes(role)) 
+        profile?.roles?.find(role => allowedRoles?.includes(role)) 
           ? <Outlet />
-          : auth?.user 
+          : profile?.user 
             ? <Navigate to="/unauthorized" state={{ from: location }} replace />
             : <Navigate to="/register" state={{ from: location }} replace />
       }

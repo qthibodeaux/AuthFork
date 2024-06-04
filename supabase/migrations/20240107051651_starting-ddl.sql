@@ -25,4 +25,9 @@ create table roles (
   role int,
   user_id uuid,
   foreign key (user_id) references user_profiles (user_id)
-)
+);
+
+create table testtable (
+  name text,
+  numbe int
+);
