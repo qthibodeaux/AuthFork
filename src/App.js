@@ -24,10 +24,10 @@ const routing = createBrowserRouter(
 
       <Route path="/" element={<Home />} />
 
-      {/*  Protected Routes 
+      {/*  Protected Routes */}
       <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
         <Route path="/" element={<Home />} />
-      </Route>*/}
+      </Route>
 
       <Route element={<RequireAuth allowedRoles={[ROLES.Editor]} />}>
         <Route path="editor" element={<Editor />} />

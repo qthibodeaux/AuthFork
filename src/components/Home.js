@@ -10,85 +10,21 @@ function Home() {
     navigate('/linkpage');
   }
 
-  function getPromise(URL) {
-    let promise = new Promise(function (resolve, reject) {
-      let req = new XMLHttpRequest();
-      req.open("GET", URL);
-      req.onload = function () {
-        if (req.status == 200) {
-          resolve(req.response);
-        } else {
-          reject("There is an Error!");
-        }
-      };
-      req.send();
-    });
-    return promise;
+  function con () {
+    console.log('clicked')
   }
 
-  function getSupaPromise () {
-    let promise = new Promise(function (resolve, reject) {
-      supabaseClient
-        .from("testable")
-        .insert([
-          {
-            name: "Quincy",
-            numbe: 39
-          }
-        ])
-    })
-    return promise;
-  }
-
-  async function doPromise () {
+  async function setTable () {
     try {
-      const response = await supabaseClient
-        .from("testtable")
-        .insert({
-          name: "z time", numbe: 39
-        })
-
-        const data = await response
-        console.log('data',data)
-        return data
+      const { data, error } = await supabaseClient.from('testtable').insert({ name: 'Ashanti', numbe: 456 }).select()
+      if (error) {
+        console.error(error)
+      } else {
+        console.log(data)
+      }
     } catch (error) {
       console.error(error)
     }
-  }
-
-  let sp = doPromise()
-
-  const con = () => {
-    sp.then(result => {
-      let res = result
-      return res
-    }).catch(error => {
-      console.log('In the catch', error)
-    })
-  }
-
-  const ALL_POKEMONS_URL = 'https://pokeapi.co/api/v2/pokemon?limit=50';
-
-  let promise = getPromise(ALL_POKEMONS_URL);
-
-  const consumer = () => {
-    promise.then(result => {
-      let onePokemon = JSON.parse(result).results[0].url;
-      return onePokemon;
-    }).then(onePokemonURL => {
-        console.log(onePokemonURL);
-        return getPromise(onePokemonURL);
-    }).then(pokemon => {
-        console.log(JSON.parse(pokemon));
-    }).catch(error => {
-        console.log('In the catch', error);
-    });
-  }
-
-  const supaPromise = getSupaPromise()
-
-  const supaConsumer = () => {
-    supaPromise.catch(error => console.log(error))
   }
 
   return (
@@ -114,7 +50,7 @@ function Home() {
         <div>1</div>
         <div>
           {dis}
-          <button onClick={con}>Set Dis</button>
+          <button onClick={setTable}>Set Dis</button>
         </div>
       </div>
     </section>

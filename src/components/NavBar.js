@@ -20,10 +20,15 @@ function RegisterButton () {
 }
 
 function LogoutButton () {
-  const handleLogout = () => supabaseClient.auth.signOut()
-
+  async function handleLogOut () {
+    const { error } = await supabaseClient.auth.signOut()
+    if (error) {
+      console.log(error)
+    }
+  }
+  
   return (
-      <button type='button' className='btn ' id="navbutton" onClick={handleLogout}><span className='nav-dev'>log</span>out</button>
+      <button type='button' className='btn ' id="navbutton" onClick={handleLogOut}><span className='nav-dev'>log</span>out</button>
   )
 }
 
