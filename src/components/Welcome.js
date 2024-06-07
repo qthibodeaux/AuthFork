@@ -3,7 +3,7 @@ import { redirect, useNavigate } from "react-router-dom"
 import { useSession } from "../useSession"
 import supabaseClient from "../supabaseClient"
 
-export async function welcomeLoader () {
+/*export async function welcomeLoader () {
     /*const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) {
         return redirect("/")
@@ -16,16 +16,16 @@ export async function welcomeLoader () {
     if (data?.username) {
         return redirect("/")
     }
-    return user*/
+    return user
     return "yes"
-}
+}*/
 
 export function Welcome () {
-    const navigate = useNavigate()
     const [userName, setUserName] = useState("")
-    const { session } = useSession()
+    const { session, profile } = useSession()
     const [serverError, setServerError] = useState("");
 
+    
     async function getAuthUser () {
         const { data: user, error } = await supabaseClient.auth.getUser()
         if (error) {
@@ -33,7 +33,7 @@ export function Welcome () {
         } else if (!user) {
             console.log('User does exist')
         } else {
-            console.log(user)
+            console.log("User Id",user.id)
             return user.id
         }
     }
@@ -59,10 +59,12 @@ export function Welcome () {
         await setUserNam(getUser, username)
         console.log("completed")
     }
+    
+    
 
 
     const getUser = () => {
-        console.log(session)
+        getAuthUser()
     }
 
   return (
@@ -88,14 +90,8 @@ export function Welcome () {
         </form>
         <div>
             Get User
-            <button onClick={welcomeSet}>Get user</button>
+            <button onClick={getUser}>Get user</button>
         </div>
     </section>
   )
 }
-
-/*
-
-
-
-*/

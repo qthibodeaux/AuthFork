@@ -22,12 +22,11 @@ USING (auth.uid()=user_id)
 WITH CHECK (auth.uid()=user_id);
 
 create table roles (
-  role int,
-  user_id uuid,
-  foreign key (user_id) references user_profiles (user_id)
+  role_id int,
+  rule_name varchar(50)
 );
 
-create table testtable (
-  name text,
-  numbe int
+create table user_roles (
+  user_id int references user_profiles(user_id),
+  role_id int references roles(role_id)
 );

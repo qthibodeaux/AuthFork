@@ -36,9 +36,11 @@ function NavBar() {
   let navigate = useNavigate()
   const { session } = useSession()
 
+
   return (
     <div className='NavBar'>
       <h4>NavBar</h4>
+      
       {session 
         ? <LogoutButton />
         : <RegisterButton /> 
