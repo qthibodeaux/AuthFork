@@ -14,6 +14,7 @@ export function useSession () {
     const navigate = useNavigate()
 
     useEffect(() => {
+        console.log('this ran')
         supabaseClient.auth.getSession()
             .then(({ data: { session } }) => {
                 setUserInfo({ ...userInfo, session })
@@ -24,7 +25,9 @@ export function useSession () {
     }, [])
 
     useEffect(()=> {
+        console.log('session update:', userInfo.session)
         if (userInfo.session?.user && !userInfo.profile) {
+            console.log('session user but no user profile:', userInfo.session.user)
             listenToUserProfileChanges(userInfo.session.user.id)
                 .then(
                     (newChannel) => {
@@ -35,12 +38,14 @@ export function useSession () {
                     }
                 )
         } else if (!userInfo.session?.user) {
+            console.log('log out')
             channel?.unsubscribe()
             setChannel(null)
         }
     },[userInfo.session])
 
     async function listenToUserProfileChanges (userId) {
+        console.log('listening to profile changes', userId)
         const { data } = await supabaseClient
             .from("user_profiles")
             .select("*")
@@ -62,6 +67,7 @@ export function useSession () {
                 },
                 (payload) => {
                     setUserInfo({ ...userInfo, profile: payload.new })
+                    console.log('profile shouldve been updaed', userInfo)
                 }
             )
             .subscribe()
