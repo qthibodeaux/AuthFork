@@ -1,5 +1,5 @@
 import { RouterProvider, Outlet, createBrowserRouter, Route, createRoutesFromElements } from 'react-router-dom'
-import { Admin, Editor, Footy, Home, LinkPage, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized, Welcome } from './components/index'
+import { Admin, Auth, Editor, Footy, Home, LinkPage, Lounge, Missing, Navbar, Nest, Profile, Register, RequireAuth,  Unauthorized, Welcome } from './components/index'
 import { AuthProvider } from './useSession'
 
 const ROLES = {
@@ -21,6 +21,8 @@ const routing = createBrowserRouter(
       <Route path="profile" element={<Profile />} />
 
       <Route path="welcome" element={<Welcome />}  />
+
+      <Route path="auth" element={<Auth />}/>
 
       <Route path="/" element={<Home />} />
 

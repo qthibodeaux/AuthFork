@@ -1,4 +1,5 @@
 import Admin from './Admin'
+import Auth from './Auth'
 import Editor from './Editor'
 import Footy from './Footy'
 import Home from './Home'
@@ -15,4 +16,4 @@ import RequireAuth from './RequireAuth'
 import Unauthorized from './Unauthorized'
 import { Welcome } from './Welcome'
 
-export { Admin, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, Profile, RequireAuth, Unauthorized, Welcome }
+export { Admin, Auth, Editor, Footy, Home, LinkPage, Login, Lounge, Main, Missing, Navbar, Register, Nest, Profile, RequireAuth, Unauthorized, Welcome }
