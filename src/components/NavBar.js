@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useSession } from '../useSession'
+import { useSession } from '../useSessionOne'
 import supabaseClient from '../supabaseClient'
 
 function RegisterButton () {

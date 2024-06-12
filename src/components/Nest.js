@@ -1,13 +1,15 @@
 import { useParams } from "react-router-dom"
 import { useState } from "react"
 import supabaseClient from '../supabaseClient'
-import { useAuth } from "../useAuth"
+import { useSession } from "../useSessionOne"
 
 function Nest() {
   const { nest } = useParams()
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const { session } = useSession()
 
   const handleButtonClick = async () => {
     try {
@@ -20,9 +22,7 @@ function Nest() {
   };
 
   const sessionFunction = async () => {
-    const response = await supabaseClient.auth.getSession()
-    const data = await response.json()
-    return data
+    console.log(session)
   }
 
   return (
@@ -31,7 +31,7 @@ function Nest() {
       {nest}
       <div>
       <h1>Fetch Data on Button Click</h1>
-      <button onClick={handleButtonClick}>Fetch Data</button>
+      <button onClick={sessionFunction}>Fetch Data</button>
       
     </div>
     </div>

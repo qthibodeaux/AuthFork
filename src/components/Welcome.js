@@ -1,26 +1,8 @@
-import { useContext, useMemo, useState } from "react"
-import { redirect, useNavigate } from "react-router-dom"
-import { useSession } from "../useSession"
+import { useState } from "react"
+import { useSession } from "../useSessionOne"
 import supabaseClient from "../supabaseClient"
 
-/*export async function welcomeLoader () {
-    /*const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-        return redirect("/")
-    } 
-    const { data } =  await supabaseClient
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single()
-    if (data?.username) {
-        return redirect("/")
-    }
-    return user
-    return "yes"
-}*/
-
-export function Welcome () {
+function Welcome () {
     const [userName, setUserName] = useState("")
     const { session, profile } = useSession()
     const [serverError, setServerError] = useState("");
@@ -38,20 +20,17 @@ export function Welcome () {
         }
     }
 
-    async function setUserNam  (userId, username) {
-        const { error } = await supabaseClient
-            .from('user_profiles')
-            .insert(([
-                {
-                    user_id: userId,
-                    username: username
-                }
-            ]))
-            .then(({ error }) => {
-                if (error) {
-                    setServerError(`Username "${userName}" is already taken`)
-                } 
-            })
+    async function setUserNam  () {
+        try {
+            const { data, error } = await supabaseClient
+            .from('profiles')
+            .update({ username: userName })
+            .eq('id', session.user.id)
+            .select()
+            console.log(data)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async function welcomeSet (username) {
@@ -64,7 +43,7 @@ export function Welcome () {
 
 
     const getUser = () => {
-        getAuthUser()
+        console.log( "Getting user", session.user )
     }
 
   return (
@@ -72,7 +51,7 @@ export function Welcome () {
         <h2>Welcome!</h2>
         <p>Let's create a username</p>
         <form
-            onSubmit={(event) => {}}
+            onSubmit={setUserNam}
                 
         >
             <input
@@ -95,3 +74,5 @@ export function Welcome () {
     </section>
   )
 }
+
+export default Welcome

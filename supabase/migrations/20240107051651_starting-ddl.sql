@@ -1,7 +1,6 @@
 -- Create a table for public profiles
 create table profiles (
   id uuid references auth.users not null primary key,
-  updated_at timestamp with time zone,
   username text unique,
 
   constraint username_length check (char_length(username) >= 3)
@@ -45,3 +44,20 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+create function public.handle_profile_update()
+returns trigger as $$
+begin
+  if new.username is not null and old.username is null then
+    insert into public.user_roles (user_id, role_id)
+    values (new.id, 2001);
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_profile_updated
+  after update of username on public.profiles
+  for each row
+  when (old.username is distinct from new.username and new.username is not null and old.username is null)
+  execute procedure public.handle_profile_update();

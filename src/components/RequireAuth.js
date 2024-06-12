@@ -1,5 +1,5 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom"
-import { useSession } from "../useSession"
+import { useSession } from "../useSessionOne"
 
 function RequireAuth ({ allowedRoles }) {
     const location = useLocation()
