@@ -9,12 +9,27 @@ function RequireAuth ({ allowedRoles }) {
         roles: [1984, 2021, 5150], 
     }
 
-    const { profile } = useSession()
+    const { profile, session } = useSession()
 
   return (
     <div>
       req
-      {"allowed roles: " + allowedRoles}
+      
+      {
+        !session
+          ? <Navigate to="/register" state={{ from: location }} replace /> 
+          : profile?.roles?.find(role => allowedRoles?.includes(role))
+            ? <Outlet />
+            : <Navigate to="/unauthorized" state={{ from: location }} replace />
+      }
+    </div>
+  )
+}
+
+export default RequireAuth
+
+/*
+{"allowed roles: " + allowedRoles}
       {"auth role: " + profile?.roles}
       {"auth user:" + profile?.user}
       {
@@ -29,8 +44,5 @@ function RequireAuth ({ allowedRoles }) {
             ? <Navigate to="/unauthorized" state={{ from: location }} replace />
             : <Navigate to="/register" state={{ from: location }} replace />
       }
-    </div>
-  )
-}
 
-export default RequireAuth
+*/
