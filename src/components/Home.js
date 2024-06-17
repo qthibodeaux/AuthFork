@@ -26,6 +26,13 @@ function Home() {
       console.error(error)
     }
   }
+  async function getSession () {
+    try {
+      const { session, error } = await supab
+    } catch (error) {
+      
+    }
+  }
 
   return (
     <section>
