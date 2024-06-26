@@ -56,14 +56,14 @@ export function useSession () {
         setUserInfo({ ...userInfo, profile: data?.[0] })
 
         return supabaseClient
-            .channel(`public:user_profiles`)
+            .channel(`public:profiles`)
             .on(
                 "postgres_changes",
                 {
                     event: "*",
                     schema: "public",
-                    table: "user_profiles",
-                    filter: `user_id=eq.${userId}`,
+                    table: "profiles",
+                    filter: `id=eq.${userId}`,
                 },
                 (payload) => {
                     setUserInfo({ ...userInfo, profile: payload.new })
