@@ -65,7 +65,7 @@ export function useSession () {
                     table: "profiles",
                     filter: `id=eq.${userId}`,
                 },
-                (payload) => {
+                (payload) => np{
                     setUserInfo({ ...userInfo, profile: payload.new })
                     console.log('profile shouldve been updaed', userInfo)
                 }
