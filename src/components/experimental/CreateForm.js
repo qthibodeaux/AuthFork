@@ -190,7 +190,7 @@ const FormInfoBox = ({ firstName, lastName, nickName, sunrise, sunset }) => {
           {sunrise && (
             <Row justify="center" align="middle" gutter={16}>
               <Col>
-                <Title level={3} style={{ color: '#fff' }}>
+                <Title level={3} style={{ color: '#f3e7b1' }}>
                   Sunrise:
                 </Title>
               </Col>
@@ -204,7 +204,7 @@ const FormInfoBox = ({ firstName, lastName, nickName, sunrise, sunset }) => {
           {sunset && (
             <Row justify="center" align="middle" gutter={16}>
               <Col>
-                <Title level={3} style={{ color: '#fff' }}>
+                <Title level={3} style={{ color: '#f3e7b1' }}>
                   Sunset:
                 </Title>
               </Col>

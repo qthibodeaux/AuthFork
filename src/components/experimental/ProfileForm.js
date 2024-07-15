@@ -5,6 +5,7 @@ import {
   LastNameForm,
   NameForm,
   NickNameForm,
+  SmithSideForm,
   SunriseForm,
   SunsetForm,
 } from './index';
@@ -21,10 +22,13 @@ function ProfileForm() {
   const [nickName, setNickName] = useState('');
   const [sunrise, setSunrise] = useState(null);
   const [sunset, setSunset] = useState(null);
+  const [smithside, setSmithside] = useState(false);
 
   const { type } = useParams();
 
   const [activeTab, setActiveTab] = useState('NameForm');
+
+  if (type === 'child') setActiveTab('SmithSideForm');
 
   const MainPage = ({ activeTab }) => {
     let comp = (
@@ -48,13 +52,19 @@ function ProfileForm() {
           type={type}
         />
       );
+    else if (activeTab === 'SmithSideForm')
+      comp = (
+        <SmithSideForm
+          setSmithside={setSmithside}
+          setActiveTab={setActiveTab}
+        />
+      );
     else if (activeTab === 'FirstNameForm')
       comp = (
         <FirstNameForm
           setNickName={setNickName}
           setActiveTab={setActiveTab}
           setFirstName={setFirstName}
-          setSunset
           type={type}
         />
       );
@@ -101,6 +111,7 @@ function ProfileForm() {
           firstName={firstName}
           nickName={nickName}
           lastName={lastName}
+          smithside={smithside}
           sunrise={sunrise}
           sunset={sunset}
           type={type}
