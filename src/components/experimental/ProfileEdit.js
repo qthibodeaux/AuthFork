@@ -3,10 +3,9 @@ import { Avatar, Button, Card, Col, Form, Input, Row, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-
 import Mary from '../assets/mary.jpg';
 
-const { Text, Title } = Typography;
+const { Title } = Typography;
 
 function ProfileEdit() {
   const [loading, setLoading] = useState(false);
@@ -14,24 +13,8 @@ function ProfileEdit() {
   const { userId } = useParams();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [avatarUrls, setAvatarUrls] = useState([]);
   const [connections, setConnections] = useState([]);
-
-  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
-  const handleEditClick = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleSave = () => {
-    // Implement save logic here
-    setIsEditing(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,26 +72,6 @@ function ProfileEdit() {
         }));
 
         setConnections(connectionsWithDetails);
-
-        // Fetch avatar URLs for current user and connections
-        const userIds = [userId, ...profileIds];
-        const avatarFetchPromises = userIds.map(async (id) => {
-          const { data: profileAvatar, error: avatarError } =
-            await supabase.storage.from('avatars').getPublicUrl(`${id}.jpg`);
-
-          if (avatarError) {
-            console.error(
-              `Error fetching avatar for ${id}:`,
-              avatarError.message
-            );
-            return null;
-          }
-
-          return profileAvatar?.data?.publicUrl || null;
-        });
-
-        const avatarUrls = await Promise.all(avatarFetchPromises);
-        setAvatarUrls(avatarUrls.filter((url) => url !== null));
       } catch (error) {
         setError(error.message);
       } finally {
@@ -130,7 +93,7 @@ function ProfileEdit() {
       <Title>Account Settings</Title>
       <Button onClick={() => console.log({ data })}>Get Data</Button>
 
-      <ProfileInfo data={data} />
+      <ProfileInfo data={data} formData={formData} setFormData={setFormData} />
       <AvatarInfo avatar_url={data.avatar_url} userId={userId} />
       <AncestorInfo
         ancestor={data.ancestor}
@@ -150,9 +113,8 @@ function ProfileEdit() {
 
 export default ProfileEdit;
 
-const ProfileInfo = ({ data }) => {
+const ProfileInfo = ({ data, formData, setFormData }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(data);
   const handleEditClick = () => {
     setIsEditing(!isEditing);
   };
@@ -166,6 +128,7 @@ const ProfileInfo = ({ data }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   return (
     <Card
       title="Profile Information"
@@ -289,7 +252,6 @@ const AncestorInfo = ({ ancestor, ancestor_profile, userId }) => {
           </Row>
           <Row>
             <Button onClick={removeAncestor} disabled={isLoading}>
-              {' '}
               {isLoading ? 'Removing...' : 'Remove Ancestor'}
             </Button>
           </Row>
@@ -346,7 +308,7 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
 
       const connectionTypeId = connectionTypeData.id;
 
-      // Remove the connection where profile_1 is the parent and profile_2 is the user
+      // Remove the association from the connection table
       const { data: connectionData, error: connectionError } = await supabase
         .from('connection')
         .delete()
@@ -358,19 +320,22 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
         throw connectionError;
       }
 
-      console.log('Parent and connection removed successfully');
-      window.location.reload(); // Refresh the page
+      console.log('Parent removed successfully');
+      window.location.reload();
     } catch (error) {
-      console.error('Error removing parent and connection:', error.message);
+      console.error('Error removing parent:', error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const goToParents = () => navigate(`/parentform/${userId}`);
+  const goToSmithParent = () => navigate('/mainancestorform');
 
   return (
-    <Card style={{ backgroundColor: '#f3e7b1', width: '100%' }}>
+    <Card
+      title="Who is your Smith Parent?"
+      style={{ backgroundColor: '#f3e7b1', width: '100%' }}
+    >
       {parent ? (
         <Col>
           <Row>
@@ -379,14 +344,13 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
           </Row>
           <Row>
             <Button onClick={removeParent} disabled={isLoading}>
-              {' '}
-              {isLoading ? 'Removing...' : 'Remove Smith Side Parent'}
+              {isLoading ? 'Removing...' : 'Remove Parent'}
             </Button>
           </Row>
         </Col>
       ) : (
         <Row justify="space-between">
-          <Col>Add Smith Side Parent?</Col>
+          <Col>Who is your Smith Parent?</Col>
           <Col>
             <Button
               icon={<EditOutlined />}
@@ -396,7 +360,7 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
                 fontWeight: 'bold',
                 color: 'white',
               }}
-              onClick={() => goToParents()}
+              onClick={() => goToSmithParent()}
             ></Button>
           </Col>
         </Row>
@@ -406,296 +370,60 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
 };
 
 const ConnectionsInfo = ({ userId }) => {
-  const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState([]);
-  const [connectionTypes, setConnectionTypes] = useState({});
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchConnections = async () => {
       setLoading(true);
       try {
-        // Fetch connection types
-        const { data: connectionTypeData, error: connectionTypeError } =
-          await supabase.from('connection_type').select('id, connection_name');
-
-        if (connectionTypeError) throw connectionTypeError;
-
-        const connectionTypeMap = connectionTypeData.reduce((acc, type) => {
-          acc[type.connection_name] = type.id;
-          return acc;
-        }, {});
-
-        setConnectionTypes(connectionTypeMap);
-
-        // Fetch connections data
-        const { data: connectionData, error: connectionError } = await supabase
+        const { data, error } = await supabase
           .from('connection')
           .select(
             `
-            profile_2,
+            profile_2 (id, firstname, nickname, lastname, avatar_url),
             connection_type:connection_type (connection_name)
           `
           )
           .eq('profile_1', userId);
 
-        if (connectionError) throw connectionError;
-
-        // Fetch profile details for connections
-        const profileIds = connectionData.map((conn) => conn.profile_2);
-        const { data: profileData, error: profileError } = await supabase
-          .from('profile')
-          .select(
-            'id, firstname, nickname, lastname, avatar_url, parent, sunrise, sunset'
-          )
-          .in('id', profileIds);
-
-        if (profileError) throw profileError;
-
-        // Map connection data with profile details
-        const connectionsWithDetails = connectionData.map((conn) => ({
-          ...conn,
-          profile_2: profileData.find(
-            (profile) => profile.id === conn.profile_2
-          ),
-        }));
-
-        setConnections(connectionsWithDetails);
+        if (error) throw error;
+        setConnections(data);
       } catch (error) {
-        setError(error.message);
+        console.error('Error fetching connections:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchConnections();
   }, [userId]);
 
-  const removeConnection = async (profile1, profile2, connectionType) => {
-    setLoading(true);
-    try {
-      const connectionTypeId = connectionTypes[connectionType];
-      if (!connectionTypeId)
-        throw new Error(`Connection type ${connectionType} not found`);
-
-      // Remove the specified connections
-      await supabase
-        .from('connection')
-        .delete()
-        .match({
-          profile_1: profile1,
-          profile_2: profile2,
-          connection_type: connectionTypeId,
-        });
-      await supabase
-        .from('connection')
-        .delete()
-        .match({
-          profile_1: profile2,
-          profile_2: profile1,
-          connection_type: connectionTypeId,
-        });
-
-      // Refresh connections data
-      const { data: connectionData, error: connectionError } = await supabase
-        .from('connection')
-        .select(
-          `
-          profile_2,
-          connection_type:connection_type (connection_name)
-        `
-        )
-        .eq('profile_1', userId);
-
-      if (connectionError) throw connectionError;
-
-      const profileIds = connectionData.map((conn) => conn.profile_2);
-      const { data: profileData, error: profileError } = await supabase
-        .from('profile')
-        .select(
-          'id, firstname, nickname, lastname, avatar_url, parent, sunrise, sunset'
-        )
-        .in('id', profileIds);
-
-      if (profileError) throw profileError;
-
-      const connectionsWithDetails = connectionData.map((conn) => ({
-        ...conn,
-        profile_2: profileData.find((profile) => profile.id === conn.profile_2),
-      }));
-
-      setConnections(connectionsWithDetails);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const removeChildConnection = async (parentProfile, childProfile) => {
-    setLoading(true);
-    try {
-      const parentConnectionTypeId = connectionTypes['parent'];
-      const childConnectionTypeId = connectionTypes['child'];
-
-      if (!parentConnectionTypeId || !childConnectionTypeId) {
-        throw new Error('Connection type not found');
-      }
-
-      // Check if user is listed as a parent in the child's profile
-      const { data: childData, error: childError } = await supabase
-        .from('profile')
-        .select('parent')
-        .eq('id', childProfile);
-
-      if (childError) throw childError;
-
-      const childProfileData = childData[0];
-
-      if (childProfileData.parent === parentProfile) {
-        // Remove parent from child's profile
-        await supabase
-          .from('profile')
-          .update({ parent: null })
-          .eq('id', childProfile);
-      }
-
-      // Remove the specified connections
-      await supabase
-        .from('connection')
-        .delete()
-        .match({
-          profile_1: userId,
-          profile_2: childProfile,
-          connection_type: parentConnectionTypeId,
-        });
-      await supabase
-        .from('connection')
-        .delete()
-        .match({
-          profile_1: childProfile,
-          profile_2: userId,
-          connection_type: childConnectionTypeId,
-        });
-
-      // Refresh connections data
-      const { data: connectionData, error: connectionError } = await supabase
-        .from('connection')
-        .select(
-          `
-          profile_2,
-          connection_type:connection_type (connection_name)
-        `
-        )
-        .eq('profile_1', userId);
-
-      if (connectionError) throw connectionError;
-
-      const profileIds = connectionData.map((conn) => conn.profile_2);
-      const { data: profileData, error: profileError } = await supabase
-        .from('profile')
-        .select(
-          'id, firstname, nickname, lastname, avatar_url, parent, sunrise, sunset'
-        )
-        .in('id', profileIds);
-
-      if (profileError) throw profileError;
-
-      const connectionsWithDetails = connectionData.map((conn) => ({
-        ...conn,
-        profile_2: profileData.find((profile) => profile.id === conn.profile_2),
-      }));
-
-      setConnections(connectionsWithDetails);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
-  // Group connections by type for rendering
-  const connectionGroups = connections.reduce((acc, conn) => {
-    const type = conn.connection_type.connection_name;
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(conn);
-    return acc;
-  }, {});
+  if (connections.length === 0) return <div>No connections found.</div>;
 
   return (
-    <Card title="Connections">
-      {/* Parents */}
-      {connectionGroups.parent && connectionGroups.parent.length > 0 && (
-        <div>
-          <h3>Parents</h3>
-          {connectionGroups.parent.map((conn) => (
-            <Row key={conn.profile_2.id} justify="space-between" align="middle">
-              <Col>
+    <Card
+      title="Connections"
+      style={{ backgroundColor: '#f3e7b1', width: '100%' }}
+    >
+      {connections.map((conn) => (
+        <Card key={conn.profile_2.id} style={{ marginBottom: '1rem' }}>
+          <Row align="middle">
+            <Avatar
+              shape="square"
+              size={64}
+              src={conn.profile_2.avatar_url || Mary}
+            />
+            <Col style={{ marginLeft: '1rem' }}>
+              <Title level={5}>
                 {conn.profile_2.firstname} {conn.profile_2.lastname}
-              </Col>
-              <Col>
-                <Button
-                  onClick={() =>
-                    removeConnection(conn.profile_2.id, userId, 'parent')
-                  }
-                  loading={loading}
-                >
-                  Remove
-                </Button>
-              </Col>
-            </Row>
-          ))}
-        </div>
-      )}
-      {/* Spouses */}
-      {connectionGroups.spouse && connectionGroups.spouse.length > 0 && (
-        <div>
-          <h3>Spouse</h3>
-          {connectionGroups.spouse.map((conn) => (
-            <Row key={conn.profile_2.id} justify="space-between" align="middle">
-              <Col>
-                {conn.profile_2.firstname} {conn.profile_2.lastname}
-              </Col>
-              <Col>
-                <Button
-                  onClick={() =>
-                    removeConnection(conn.profile_2.id, userId, 'spouse')
-                  }
-                  loading={loading}
-                >
-                  Remove
-                </Button>
-              </Col>
-            </Row>
-          ))}
-        </div>
-      )}
-      {/* Children */}
-      {connectionGroups.child && connectionGroups.child.length > 0 && (
-        <div>
-          <h3>Children</h3>
-          {connectionGroups.child.map((conn) => (
-            <Row key={conn.profile_2.id} justify="space-between" align="middle">
-              <Col>
-                {conn.profile_2.firstname} {conn.profile_2.lastname}
-              </Col>
-              <Col>
-                <Button
-                  onClick={() =>
-                    removeChildConnection(userId, conn.profile_2.id)
-                  }
-                  loading={loading}
-                >
-                  Remove
-                </Button>
-              </Col>
-            </Row>
-          ))}
-        </div>
-      )}
+              </Title>
+              <div>{conn.connection_type.connection_name}</div>
+            </Col>
+          </Row>
+        </Card>
+      ))}
     </Card>
   );
 };
