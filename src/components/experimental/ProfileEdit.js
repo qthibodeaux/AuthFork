@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Avatar, Button, Card, Col, Form, Input, Row, Typography } from 'antd';
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  message,
+  Row,
+  Typography,
+} from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
@@ -285,7 +295,7 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
     setIsLoading(true);
     try {
       // Remove the parent from the profile
-      const { data: profileData, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from('profile')
         .update({ parent: null })
         .eq('id', userId);
@@ -309,7 +319,7 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
       const connectionTypeId = connectionTypeData.id;
 
       // Remove the association from the connection table
-      const { data: connectionData, error: connectionError } = await supabase
+      const { error: connectionError } = await supabase
         .from('connection')
         .delete()
         .eq('profile_1', parent)
@@ -318,6 +328,58 @@ const SmithParentInfo = ({ parent, parent_profile, userId }) => {
 
       if (connectionError) {
         throw connectionError;
+      }
+
+      // Check if the userId profile has a branch
+      const { data: userProfile, error: userProfileError } = await supabase
+        .from('profile')
+        .select('branch')
+        .eq('id', userId)
+        .single();
+
+      if (userProfileError) {
+        throw userProfileError;
+      }
+
+      if (userProfile.branch !== null) {
+        // Update the userId profile's branch to null
+        const { error: updateUserProfileError } = await supabase
+          .from('profile')
+          .update({ branch: null })
+          .eq('id', userId);
+
+        if (updateUserProfileError) {
+          throw updateUserProfileError;
+        }
+
+        // Function to recursively update the branch of all descendants to null
+        const updateDescendantBranches = async (parentId) => {
+          const { data: descendants, error: descendantsError } = await supabase
+            .from('profile')
+            .select('id')
+            .eq('parent', parentId);
+
+          if (descendantsError) {
+            throw descendantsError;
+          }
+
+          for (const descendant of descendants) {
+            const { error: updateDescendantError } = await supabase
+              .from('profile')
+              .update({ branch: null })
+              .eq('id', descendant.id);
+
+            if (updateDescendantError) {
+              throw updateDescendantError;
+            }
+
+            // Recursively update the branch of the descendant's descendants
+            await updateDescendantBranches(descendant.id);
+          }
+        };
+
+        // Update the branches of all descendants
+        await updateDescendantBranches(userId);
       }
 
       console.log('Parent removed successfully');
@@ -399,31 +461,128 @@ const ConnectionsInfo = ({ userId }) => {
     fetchConnections();
   }, [userId]);
 
+  const removeConnection = async (connection) => {
+    setLoading(true);
+    try {
+      const { connection_name } = connection.connection_type;
+      const { id: profile2Id } = connection.profile_2;
+
+      let error;
+
+      switch (connection_name) {
+        case 'parent':
+          ({ error } = await supabase
+            .from('connection')
+            .delete()
+            .or(`profile_1.eq.${userId},profile_1.eq.${profile2Id}`)
+            .and(`profile_2.eq.${userId},profile_2.eq.${profile2Id}`)
+            .eq('connection_type', connection.connection_type.id));
+          if (!error) {
+            ({ error } = await supabase
+              .from('profile')
+              .update({ parent: null })
+              .eq('id', userId));
+            ({ error } = await supabase
+              .from('profile')
+              .update({ parent: null })
+              .eq('id', profile2Id));
+          }
+          break;
+        case 'spouse':
+          ({ error } = await supabase
+            .from('connection')
+            .delete()
+            .or(`profile_1.eq.${userId},profile_1.eq.${profile2Id}`)
+            .and(`profile_2.eq.${userId},profile_2.eq.${profile2Id}`)
+            .eq('connection_type', connection.connection_type.id));
+          break;
+        case 'child':
+          const { data: childProfile, error: childError } = await supabase
+            .from('profile')
+            .select('parent')
+            .eq('id', profile2Id)
+            .single();
+          if (childError) throw childError;
+
+          if (childProfile.parent === userId) {
+            ({ error } = await supabase
+              .from('profile')
+              .update({ parent: null })
+              .eq('id', profile2Id));
+          }
+
+          if (!childProfile.parent || childProfile.parent !== userId) {
+            ({ error } = await supabase
+              .from('connection')
+              .delete()
+              .eq('profile_1', userId)
+              .eq('profile_2', profile2Id)
+              .eq('connection_type', connection.connection_type.id));
+          }
+          break;
+        default:
+          break;
+      }
+
+      if (error) throw error;
+
+      setConnections(
+        connections.filter((conn) => conn.profile_2.id !== profile2Id)
+      );
+      message.success('Connection removed successfully');
+    } catch (error) {
+      console.error('Error removing connection:', error.message);
+      message.error('Error removing connection: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (connections.length === 0) return <div>No connections found.</div>;
+
+  const parents = connections.filter(
+    (conn) => conn.connection_type.connection_name === 'parent'
+  );
+  const spouses = connections.filter(
+    (conn) => conn.connection_type.connection_name === 'spouse'
+  );
+  const children = connections.filter(
+    (conn) => conn.connection_type.connection_name === 'child'
+  );
+
+  const renderConnections = (connectionsList, title) => (
+    <Card title={title} style={{ marginBottom: '1rem' }}>
+      {connectionsList.map((conn) => (
+        <Row
+          key={conn.profile_2.id}
+          align="middle"
+          style={{ marginBottom: '1rem' }}
+        >
+          <Avatar
+            shape="square"
+            size={64}
+            src={conn.profile_2.avatar_url || 'default_avatar.png'}
+          />
+          <Col style={{ marginLeft: '1rem' }}>
+            <Title level={5}>
+              {conn.profile_2.firstname} {conn.profile_2.lastname}
+            </Title>
+            <Button onClick={() => removeConnection(conn)}>Remove</Button>
+          </Col>
+        </Row>
+      ))}
+    </Card>
+  );
 
   return (
     <Card
       title="Connections"
       style={{ backgroundColor: '#f3e7b1', width: '100%' }}
     >
-      {connections.map((conn) => (
-        <Card key={conn.profile_2.id} style={{ marginBottom: '1rem' }}>
-          <Row align="middle">
-            <Avatar
-              shape="square"
-              size={64}
-              src={conn.profile_2.avatar_url || Mary}
-            />
-            <Col style={{ marginLeft: '1rem' }}>
-              <Title level={5}>
-                {conn.profile_2.firstname} {conn.profile_2.lastname}
-              </Title>
-              <div>{conn.connection_type.connection_name}</div>
-            </Col>
-          </Row>
-        </Card>
-      ))}
+      {renderConnections(parents, 'Parents')}
+      {renderConnections(spouses, 'Spouses')}
+      {renderConnections(children, 'Children')}
     </Card>
   );
 };
