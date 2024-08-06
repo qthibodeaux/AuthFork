@@ -444,12 +444,13 @@ const ConnectionsInfo = ({ userId }) => {
           .select(
             `
             profile_2 (id, firstname, nickname, lastname, avatar_url),
-            connection_type:connection_type (connection_name)
+            connection_type (id, connection_name)
           `
           )
           .eq('profile_1', userId);
 
         if (error) throw error;
+        console.log('Fetched connections:', data); // Debug statement
         setConnections(data);
       } catch (error) {
         console.error('Error fetching connections:', error);
@@ -464,7 +465,8 @@ const ConnectionsInfo = ({ userId }) => {
   const removeConnection = async (connection) => {
     setLoading(true);
     try {
-      const { connection_name } = connection.connection_type;
+      const { connection_name, id: connectionTypeId } =
+        connection.connection_type;
       const { id: profile2Id } = connection.profile_2;
 
       let error;
@@ -476,7 +478,7 @@ const ConnectionsInfo = ({ userId }) => {
             .delete()
             .or(`profile_1.eq.${userId},profile_1.eq.${profile2Id}`)
             .and(`profile_2.eq.${userId},profile_2.eq.${profile2Id}`)
-            .eq('connection_type', connection.connection_type.id));
+            .eq('connection_type', connectionTypeId));
           if (!error) {
             ({ error } = await supabase
               .from('profile')
@@ -494,32 +496,95 @@ const ConnectionsInfo = ({ userId }) => {
             .delete()
             .or(`profile_1.eq.${userId},profile_1.eq.${profile2Id}`)
             .and(`profile_2.eq.${userId},profile_2.eq.${profile2Id}`)
-            .eq('connection_type', connection.connection_type.id));
+            .eq('connection_type', connectionTypeId));
           break;
         case 'child':
           const { data: childProfile, error: childError } = await supabase
             .from('profile')
-            .select('parent')
+            .select('parent, ancestor, branch')
             .eq('id', profile2Id)
             .single();
           if (childError) throw childError;
 
           if (childProfile.parent === userId) {
-            ({ error } = await supabase
+            const { error: updateError } = await supabase
               .from('profile')
-              .update({ parent: null })
-              .eq('id', profile2Id));
+              .update({ parent: null, ancestor: null })
+              .eq('id', profile2Id);
+            if (updateError) throw updateError;
           }
 
-          if (!childProfile.parent || childProfile.parent !== userId) {
-            ({ error } = await supabase
-              .from('connection')
-              .delete()
-              .eq('profile_1', userId)
-              .eq('profile_2', profile2Id)
-              .eq('connection_type', connection.connection_type.id));
+          // Remove the connection from the connection table where userId is profile_1
+          let { error: deleteError1 } = await supabase
+            .from('connection')
+            .delete()
+            .eq('profile_1', userId)
+            .eq('profile_2', profile2Id)
+            .eq('connection_type', connectionTypeId);
+          if (deleteError1) throw deleteError1;
+
+          // Remove the connection from the connection table where userId is profile_2
+          let { error: deleteError2 } = await supabase
+            .from('connection')
+            .delete()
+            .eq('profile_1', profile2Id)
+            .eq('profile_2', userId)
+            .eq('connection_type', connectionTypeId);
+          if (deleteError2) throw deleteError2;
+
+          // Remove the connection from the connection table where profile_1 is the child, profile_2 is userId, and connection type is 'parent'
+          const {
+            data: parentConnectionType,
+            error: parentConnectionTypeError,
+          } = await supabase
+            .from('connection_type')
+            .select('id')
+            .eq('connection_name', 'parent')
+            .single();
+          if (parentConnectionTypeError) throw parentConnectionTypeError;
+
+          const parentConnectionTypeId = parentConnectionType.id;
+
+          let { error: deleteError3 } = await supabase
+            .from('connection')
+            .delete()
+            .eq('profile_1', profile2Id)
+            .eq('profile_2', userId)
+            .eq('connection_type', parentConnectionTypeId);
+          if (deleteError3) throw deleteError3;
+
+          // If the child has a branch, recursively update all descendants
+          if (childProfile.branch) {
+            const updateDescendantsBranch = async (profileId) => {
+              const { data: descendants, error } = await supabase
+                .from('profile')
+                .select('id')
+                .eq('parent', profileId);
+
+              if (error) throw error;
+
+              for (const descendant of descendants) {
+                const { error: updateDescendantError } = await supabase
+                  .from('profile')
+                  .update({ branch: null })
+                  .eq('id', descendant.id);
+                if (updateDescendantError) throw updateDescendantError;
+
+                await updateDescendantsBranch(descendant.id);
+              }
+            };
+
+            await updateDescendantsBranch(profile2Id);
+
+            // Update the child's branch to null
+            const { error: updateChildBranchError } = await supabase
+              .from('profile')
+              .update({ branch: null })
+              .eq('id', profile2Id);
+            if (updateChildBranchError) throw updateChildBranchError;
           }
           break;
+
         default:
           break;
       }
