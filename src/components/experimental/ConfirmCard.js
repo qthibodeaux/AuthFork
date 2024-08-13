@@ -95,12 +95,32 @@ const ConfirmCard = ({
       profileData.id = profileId;
     }
 
-    if (type === 'child' && smithside) {
-      profileData.parent = userId;
-    }
-
     if (ancestor && (type === 'smithparent' || type === 'child')) {
       profileData.ancestor = ancestor;
+    }
+
+    if (type === 'child') {
+      // Fetch the parent profile to get the branch value
+      const { data: parentProfile, error: parentProfileError } = await supabase
+        .from('profile')
+        .select('branch')
+        .eq('id', userId)
+        .single();
+
+      if (parentProfileError) {
+        message.error(
+          'Error fetching parent profile: ' + parentProfileError.message
+        );
+        setLoading(false);
+        return;
+      }
+
+      // If the parent profile has a branch, set the child's branch to parent branch + 1
+      if (parentProfile && parentProfile.branch !== null) {
+        profileData.branch = parentProfile.branch + 1;
+      }
+
+      profileData.parent = userId;
     }
 
     try {
