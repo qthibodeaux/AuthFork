@@ -9,58 +9,39 @@ const CarouselCard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfiles = async () => {
+    // Fetch 5 random profiles using the RPC method
+    const fetchRandomProfiles = async () => {
       try {
-        // Call the get_random_profiles function with a limit of 5
-        const { data, error } = await supabase.rpc('get_random_profiles', {
-          p_limit: 5,
-        });
+        const { data, error } = await supabase.rpc('get_random_profiles');
 
         if (error) throw error;
 
         setProfiles(data);
       } catch (error) {
-        console.error('Error fetching profiles:', error);
+        console.error('Error fetching random profiles:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfiles();
+    fetchRandomProfiles();
   }, []);
 
-  if (loading)
-    return (
-      <div className="spinner">
-        <Spin size="large" />
-      </div>
-    );
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <Card
-      title="Family Member Spotlight"
-      style={{ backgroundColor: '#f3e7b1', width: '100%' }}
-    >
-      <Carousel autoplay autoplaySpeed={10000}>
+    <div>
+      <h3>Random Profiles</h3>
+      <ul>
         {profiles.map((profile) => (
-          <div key={profile.id}>
-            <Row align="middle" gutter={16}>
-              <Col span={12}>
-                <Avatar shape="square" size={64} src={profile.avatar_url} />
-              </Col>
-              <Col span={12}>
-                <Title level={5}>
-                  {profile.firstname}{' '}
-                  {profile.nickname ? `(${profile.nickname})` : ''}
-                </Title>
-                <div>{profile.lastname}</div>
-                <div>{new Date(profile.sunrise).toLocaleDateString()}</div>
-              </Col>
-            </Row>
-          </div>
+          <li key={profile.id}>
+            {profile.firstname} {profile.lastname} - {profile.nickname}
+          </li>
         ))}
-      </Carousel>
-    </Card>
+      </ul>
+    </div>
   );
 };
 
